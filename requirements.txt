@@ -1,0 +1,1 @@
+git+https://gitlab.com/drj11/pypng@pypng-0.20220715.0
