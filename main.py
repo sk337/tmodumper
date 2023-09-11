@@ -124,6 +124,3 @@ with open(args.filename, 'rb') as fh:
     inum+=1
   
   print("\ndecompressed all files")
-
-        
-      
