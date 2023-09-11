@@ -8,12 +8,11 @@ import sys
 
 parser = argparse.ArgumentParser(
                     prog='TModDumper',
-                    description='Dumps assets from tModLoader\'s ',
-                    epilog='idk what to put here')
+                    description='Dumps assets from tModLoader\'s ',)
 
 parser.add_argument('filename')
-parser.add_argument('-o', '--output', default='out', action='store', dest='outputFile')
-parser.add_argument('-c', '--convert-images', action='store_true')
+parser.add_argument('-o', '--output', default='out', action='store', help="Output Directory")
+parser.add_argument('-c', '--convert-images', action='store_true', help="Convert .rawimg to png (may decrease performance)")
 
 args=parser.parse_args()
 def statusBar(msg):
@@ -21,8 +20,8 @@ def statusBar(msg):
   sys.stdout.flush()
 # print()
 
-if not os.path.isdir(args.outputFile):
-  os.mkdir(args.outputFile)
+if not os.path.isdir(args.out):
+  os.mkdir(args.out)
 
 def readStr(fh):
   def decode_from_7bit(data):
@@ -91,13 +90,13 @@ with open(args.filename, 'rb') as fh:
 
     path = i['name'].split('/')[:-1]
     # print("making dir for " + i['name'].split('/')[-1])
-    mdir=args.outputFile+"/"
+    mdir=args.out+"/"
     for e in path:
       if not os.path.isdir(mdir+e):
         os.mkdir(mdir+e)
       mdir+=e+'/'
     if i['name'].split('/')[-1].split('.')[-1]!='rawimg':
-      with open(args.outputFile+"/"+i['name'], 'wb') as f:
+      with open(args.out+"/"+i['name'], 'wb') as f:
         if i['size']!=i['unsize']:
           uc=zlib.decompress(fh.read(i['size']), -15)
         else:
@@ -108,19 +107,19 @@ with open(args.filename, 'rb') as fh:
         statusBar(f"converting image {inum}/{fileCount} ({math.ceil((inum/fileCount)*100*100)/100}%){bar}")
         if i['size']!=i['unsize']:
           uc=zlib.decompress(fh.read(i['size']), -15)
-          with open(args.outputFile+"/"+'.'.join(i['name'].split('.')[:-1])+".png", 'wb') as f:
+          with open(args.out+"/"+'.'.join(i['name'].split('.')[:-1])+".png", 'wb') as f:
             rawimg.rawimgtopng(uc, f)
         else:
-          with open(args.outputFile+"/"+'.'.join(i['name'].split('.')[:-1])+".png", 'wb') as f:
+          with open(args.out+"/"+'.'.join(i['name'].split('.')[:-1])+".png", 'wb') as f:
             rawimg.rawimgtopng(fh.read(i['size']), f)
         
       else:
         if i['size']!=i['unsize']:
           uc=zlib.decompress(fh.read(i['size']), -15)
-          with open(args.outputFile+"/"+i['name'], 'wb') as f:
+          with open(args.out+"/"+i['name'], 'wb') as f:
             f.write(uc)
         else:
-          with open(args.outputFile+"/"+i['name'], 'wb') as f:
+          with open(args.out+"/"+i['name'], 'wb') as f:
             f.write(fh.read(i['size']))
     inum+=1
   
