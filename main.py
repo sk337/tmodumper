@@ -8,7 +8,7 @@ import sys
 
 parser = argparse.ArgumentParser(
                     prog='TModDumper',
-                    description='Dumps assets from tModLoader\'s ',)
+                    description='Dumps assets from tModLoader\'s .tmod file format',)
 
 parser.add_argument('filename')
 parser.add_argument('-o', '--output', default='out', action='store', help="Output Directory")
