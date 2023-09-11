@@ -20,8 +20,8 @@ def statusBar(msg):
   sys.stdout.flush()
 # print()
 
-if not os.path.isdir(args.out):
-  os.mkdir(args.out)
+if not os.path.isdir(args.output):
+  os.mkdir(args.output)
 
 def readStr(fh):
   def decode_from_7bit(data):
@@ -90,13 +90,13 @@ with open(args.filename, 'rb') as fh:
 
     path = i['name'].split('/')[:-1]
     # print("making dir for " + i['name'].split('/')[-1])
-    mdir=args.out+"/"
+    mdir=args.output+"/"
     for e in path:
       if not os.path.isdir(mdir+e):
         os.mkdir(mdir+e)
       mdir+=e+'/'
     if i['name'].split('/')[-1].split('.')[-1]!='rawimg':
-      with open(args.out+"/"+i['name'], 'wb') as f:
+      with open(args.output+"/"+i['name'], 'wb') as f:
         if i['size']!=i['unsize']:
           uc=zlib.decompress(fh.read(i['size']), -15)
         else:
@@ -107,19 +107,19 @@ with open(args.filename, 'rb') as fh:
         statusBar(f"converting image {inum}/{fileCount} ({math.ceil((inum/fileCount)*100*100)/100}%){bar}")
         if i['size']!=i['unsize']:
           uc=zlib.decompress(fh.read(i['size']), -15)
-          with open(args.out+"/"+'.'.join(i['name'].split('.')[:-1])+".png", 'wb') as f:
+          with open(args.output+"/"+'.'.join(i['name'].split('.')[:-1])+".png", 'wb') as f:
             rawimg.rawimgtopng(uc, f)
         else:
-          with open(args.out+"/"+'.'.join(i['name'].split('.')[:-1])+".png", 'wb') as f:
+          with open(args.output+"/"+'.'.join(i['name'].split('.')[:-1])+".png", 'wb') as f:
             rawimg.rawimgtopng(fh.read(i['size']), f)
         
       else:
         if i['size']!=i['unsize']:
           uc=zlib.decompress(fh.read(i['size']), -15)
-          with open(args.out+"/"+i['name'], 'wb') as f:
+          with open(args.output+"/"+i['name'], 'wb') as f:
             f.write(uc)
         else:
-          with open(args.out+"/"+i['name'], 'wb') as f:
+          with open(args.output+"/"+i['name'], 'wb') as f:
             f.write(fh.read(i['size']))
     inum+=1
   
