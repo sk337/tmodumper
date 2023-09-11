@@ -3,9 +3,26 @@ import zlib
 import os
 import rawimg
 import math
+import argparse
+import sys
 
-if not os.path.isdir('out'):
-  os.mkdir('out')
+parser = argparse.ArgumentParser(
+                    prog='TModDumper',
+                    description='Dumps assets from tModLoader\'s ',
+                    epilog='idk what to put here')
+
+parser.add_argument('filename')
+parser.add_argument('-o', '--output', default='out', action='store', dest='outputFile')
+parser.add_argument('-c', '--convert-images', action='store_true')
+
+args=parser.parse_args()
+def statusBar(msg):
+  sys.stdout.write("\r"+msg+"                 ")
+  sys.stdout.flush()
+# print()
+
+if not os.path.isdir(args.outputFile):
+  os.mkdir(args.outputFile)
 
 def readStr(fh):
   def decode_from_7bit(data):
@@ -28,7 +45,7 @@ def readUInt32(fh):
   return int.from_bytes(fh.read(4),'little')
 def readInt32(fh):
   return int.from_bytes(fh.read(4),'little',signed=True)
-with open("CalamityMod.tmod", 'rb') as fh:
+with open(args.filename, 'rb') as fh:
   sig=fh.read(4)
   if sig!=b'TMOD':
     print('invalid sig')
@@ -74,29 +91,40 @@ with open("CalamityMod.tmod", 'rb') as fh:
 
     path = i['name'].split('/')[:-1]
     # print("making dir for " + i['name'].split('/')[-1])
-    mdir="out/"
+    mdir=args.outputFile+"/"
     for e in path:
       if not os.path.isdir(mdir+e):
         os.mkdir(mdir+e)
       mdir+=e+'/'
     if i['name'].split('/')[-1].split('.')[-1]!='rawimg':
-      with open("out/"+i['name'], 'wb') as f:
+      with open(args.outputFile+"/"+i['name'], 'wb') as f:
         if i['size']!=i['unsize']:
           uc=zlib.decompress(fh.read(i['size']), -15)
         else:
           f.write(fh.read(i['size']))
     else:
-      print(f"converting image {inum}/{fileCount} ({math.ceil((inum/fileCount)*100*100)/100}%)")
-      if i['size']!=i['unsize']:
-        uc=zlib.decompress(fh.read(i['size']), -15)
-        with open("out/"+'.'.join(i['name'].split('.')[:-1])+".png", 'wb') as f:
-          rawimg.rawimgtopng(uc, f)
+      if args.convert_images == True:
+        bar = "|"+"="*(math.ceil(inum/fileCount*40)-1)+">"+"-"*math.ceil(40-(inum/fileCount*40))+"|"
+        statusBar(f"converting image {inum}/{fileCount} ({math.ceil((inum/fileCount)*100*100)/100}%){bar}")
+        if i['size']!=i['unsize']:
+          uc=zlib.decompress(fh.read(i['size']), -15)
+          with open(args.outputFile+"/"+'.'.join(i['name'].split('.')[:-1])+".png", 'wb') as f:
+            rawimg.rawimgtopng(uc, f)
+        else:
+          with open(args.outputFile+"/"+'.'.join(i['name'].split('.')[:-1])+".png", 'wb') as f:
+            rawimg.rawimgtopng(fh.read(i['size']), f)
+        
       else:
-        with open("out/"+'.'.join(i['name'].split('.')[:-1])+".png", 'wb') as f:
-          rawimg.rawimgtopng(fh.read(i['size']), f)
+        if i['size']!=i['unsize']:
+          uc=zlib.decompress(fh.read(i['size']), -15)
+          with open(args.outputFile+"/"+i['name'], 'wb') as f:
+            f.write(uc)
+        else:
+          with open(args.outputFile+"/"+i['name'], 'wb') as f:
+            f.write(fh.read(i['size']))
     inum+=1
-
-  print("decompressed all files")
+  
+  print("\ndecompressed all files")
 
         
       
