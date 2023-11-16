@@ -14,9 +14,11 @@ parser.add_argument('filename')
 parser.add_argument('-o', '--output', default='out', action='store', help="Output Directory")
 parser.add_argument('-c', '--convert-images', action='store_true', help="Convert .rawimg to png (may decrease performance)")
 
+
+
 args=parser.parse_args()
 def statusBar(msg):
-  sys.stdout.write("\r"+msg+"                 ")
+  sys.stdout.write("\x1B[2;K"+msg)
   sys.stdout.flush()
 # print()
 
